@@ -1,9 +1,9 @@
 <?
 	require_once('../Reflex.php');
 	require '../Rating.php';	
-	$filename = 'log.txt';
-	$json = json_decode($_REQUEST["jsonResult"], true);
-	file_put_contents($filename, var_export($json, true), FILE_APPEND);	
+	//$filename = 'log.txt';
+	//$json = json_decode($_REQUEST["jsonResult"], true);
+	//file_put_contents($filename, var_export($json, true), FILE_APPEND);	
 	if(!empty($_REQUEST["jsonResult"])){		
 		$reflex = new ReflexController;
 		$json = json_decode($_REQUEST["jsonResult"], true);
