@@ -1,29 +1,51 @@
--- Adminer 4.8.1 MySQL 5.5.5-10.6.10-MariaDB-1:10.6.10+maria~deb11 dump
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Хост: localhost:3306
+-- Время создания: Окт 14 2024 г., 14:57
+-- Версия сервера: 10.6.19-MariaDB-deb11
+-- Версия PHP: 8.1.29
 
-SET NAMES utf8;
-SET time_zone = '+00:00';
-SET foreign_key_checks = 0;
-SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
-SET NAMES utf8mb4;
 
-DROP TABLE IF EXISTS `matches`;
-CREATE TABLE `matches` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- База данных: `sesen_reflex`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `duels`
+--
+
+CREATE TABLE `duels` (
+  `id` int(11) NOT NULL,
   `gameGuid` varchar(255) NOT NULL,
   `sv_hostname` varchar(255) NOT NULL,
   `mode` varchar(255) NOT NULL,
   `map` varchar(255) NOT NULL,
   `map_title` varchar(255) NOT NULL,
-  `date` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `match_stats`;
+--
+-- Структура таблицы `match_stats`
+--
+
 CREATE TABLE `match_stats` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `match_id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `duel_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
   `score` int(11) NOT NULL,
   `forfeit` int(11) NOT NULL,
@@ -43,19 +65,18 @@ CREATE TABLE `match_stats` (
   `totalHealthPickedUp` int(11) NOT NULL,
   `totalDamageReceived` int(11) NOT NULL,
   `distanceTravelled` float NOT NULL,
-  `mmrNew` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `match_id` (`match_id`),
-  KEY `player_id` (`player_id`),
-  CONSTRAINT `match_stats_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches` (`id`),
-  CONSTRAINT `match_stats_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `players` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `mmrNew` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `match_weaponstats`;
+--
+-- Структура таблицы `match_weaponstats`
+--
+
 CREATE TABLE `match_weaponstats` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `match_id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `duel_id` int(11) NOT NULL,
   `player_id` int(11) NOT NULL,
   `weaponName` varchar(255) NOT NULL,
   `pickedUp` int(11) NOT NULL,
@@ -63,25 +84,103 @@ CREATE TABLE `match_weaponstats` (
   `shotsFired` int(11) NOT NULL,
   `shotsHit` int(11) NOT NULL,
   `damageDone` int(11) NOT NULL,
-  `secondsHeld` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `match_id` (`match_id`),
-  KEY `player_id` (`player_id`),
-  CONSTRAINT `match_weaponstats_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches` (`id`),
-  CONSTRAINT `match_weaponstats_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `players` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `secondsHeld` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `players`;
+--
+-- Структура таблицы `players`
+--
+
 CREATE TABLE `players` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `country` varchar(255) NOT NULL,
   `steamId` varchar(255) NOT NULL,
   `mmr` int(11) NOT NULL,
-  `mmrBest` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `mmrBest` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Индексы сохранённых таблиц
+--
 
--- 2024-02-23 16:50:41
+--
+-- Индексы таблицы `duels`
+--
+ALTER TABLE `duels`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `match_stats`
+--
+ALTER TABLE `match_stats`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `player_id` (`player_id`),
+  ADD KEY `duel_id` (`duel_id`);
+
+--
+-- Индексы таблицы `match_weaponstats`
+--
+ALTER TABLE `match_weaponstats`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `player_id` (`player_id`),
+  ADD KEY `duel_id` (`duel_id`);
+
+--
+-- Индексы таблицы `players`
+--
+ALTER TABLE `players`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT для сохранённых таблиц
+--
+
+--
+-- AUTO_INCREMENT для таблицы `duels`
+--
+ALTER TABLE `duels`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT для таблицы `match_stats`
+--
+ALTER TABLE `match_stats`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT для таблицы `match_weaponstats`
+--
+ALTER TABLE `match_weaponstats`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT для таблицы `players`
+--
+ALTER TABLE `players`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Ограничения внешнего ключа сохраненных таблиц
+--
+
+--
+-- Ограничения внешнего ключа таблицы `match_stats`
+--
+ALTER TABLE `match_stats`
+  ADD CONSTRAINT `match_stats_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `players` (`id`),
+  ADD CONSTRAINT `match_stats_ibfk_3` FOREIGN KEY (`duel_id`) REFERENCES `duels` (`id`);
+
+--
+-- Ограничения внешнего ключа таблицы `match_weaponstats`
+--
+ALTER TABLE `match_weaponstats`
+  ADD CONSTRAINT `match_weaponstats_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `players` (`id`),
+  ADD CONSTRAINT `match_weaponstats_ibfk_3` FOREIGN KEY (`duel_id`) REFERENCES `duels` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

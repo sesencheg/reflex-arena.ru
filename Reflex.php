@@ -10,7 +10,7 @@
 
 		function getMatchByGuid($guid){			
 			$guid = mysqli_real_escape_string($this->db, $guid);
-			$match = mysqli_query($this->db, "SELECT * FROM matches WHERE gameGuid='".$guid."'");
+			$match = mysqli_query($this->db, "SELECT * FROM duels WHERE gameGuid='".$guid."'");
 			return mysqli_fetch_array($match);
 		}		
 
@@ -21,7 +21,7 @@
 			$mode = mysqli_real_escape_string($this->db, $game["mode"]);
 			$map = mysqli_real_escape_string($this->db, $game["map"]);
 			$map_title = mysqli_real_escape_string($this->db, $game["title"]);
-			$query = "INSERT INTO matches (gameGuid, sv_hostname, mode, map, map_title, date) VALUES ('".$matchGuid."', '".$sv_hostname."', '".$mode."', '".$map."', '".$map_title."', '".date('Y-m-d H:i:s')."')";			
+			$query = "INSERT INTO duels (gameGuid, sv_hostname, mode, map, map_title, date) VALUES ('".$matchGuid."', '".$sv_hostname."', '".$mode."', '".$map."', '".$map_title."', '".date('Y-m-d H:i:s')."')";			
 			mysqli_query($this->db, $query);	
 			return mysqli_insert_id($this->db);
 		}
@@ -41,8 +41,8 @@
 			return mysqli_insert_id($this->db);
 		}
 
-		function addPlayerStats($match_id, $player_id, $player){
-			$match_id = mysqli_real_escape_string($this->db, $match_id);
+		function addPlayerStats($duel_id, $player_id, $player){
+			$duel_id = mysqli_real_escape_string($this->db, $duel_id);
 			$player_id = mysqli_real_escape_string($this->db, $player_id);
 			$score = mysqli_real_escape_string($this->db, $player["score"]);
 			$forfeit = mysqli_real_escape_string($this->db, $player["forfeit"]);
@@ -63,13 +63,13 @@
 			$totalDamageReceived = mysqli_real_escape_string($this->db, $player["stats"]["totalDamageReceived"]);
 			$distanceTravelled = mysqli_real_escape_string($this->db, $player["stats"]["distanceTravelled"]);
 
-			$query = "INSERT INTO match_stats (match_id, player_id, score, forfeit, disconnected, state, team, takenRA, takenYA, takenGA, takenMega, flagsCaptured, flagsPickedUp, flagsReturned, totalDeaths, secondsHeldQuad, secondsHeldResist, totalHealthPickedUp, totalDamageReceived, distanceTravelled) VALUES ('".$match_id."', '".$player_id."', '".$score."', '".$forfeit."', '".$disconnected."', '".$state."', '".$team."', '".$takenRA."', '".$takenYA."', '".$takenGA."', '".$takenMega."', '".$flagsCaptured."', '".$flagsPickedUp."', '".$flagsReturned."', '".$totalDeaths."', '".$secondsHeldQuad."', '".$secondsHeldResist."', '".$totalHealthPickedUp."', '".$totalDamageReceived."', '".$distanceTravelled."')";		
+			$query = "INSERT INTO match_stats (duel_id, player_id, score, forfeit, disconnected, state, team, takenRA, takenYA, takenGA, takenMega, flagsCaptured, flagsPickedUp, flagsReturned, totalDeaths, secondsHeldQuad, secondsHeldResist, totalHealthPickedUp, totalDamageReceived, distanceTravelled) VALUES ('".$duel_id."', '".$player_id."', '".$score."', '".$forfeit."', '".$disconnected."', '".$state."', '".$team."', '".$takenRA."', '".$takenYA."', '".$takenGA."', '".$takenMega."', '".$flagsCaptured."', '".$flagsPickedUp."', '".$flagsReturned."', '".$totalDeaths."', '".$secondsHeldQuad."', '".$secondsHeldResist."', '".$totalHealthPickedUp."', '".$totalDamageReceived."', '".$distanceTravelled."')";		
 			mysqli_query($this->db, $query);	
 			return mysqli_insert_id($this->db);			
 		}
 
-		function addPlayerWeaponStats($match_id, $player_id, $weaponStats){
-			$match_id = mysqli_real_escape_string($this->db, $match_id);
+		function addPlayerWeaponStats($duel_id, $player_id, $weaponStats){
+			$duel_id = mysqli_real_escape_string($this->db, $duel_id);
 			$player_id = mysqli_real_escape_string($this->db, $player_id);
 			$weaponName = mysqli_real_escape_string($this->db, $weaponStats["weaponName"]);
 			$pickedUp = mysqli_real_escape_string($this->db, $weaponStats["pickedUp"]);
@@ -78,7 +78,7 @@
 			$shotsHit = mysqli_real_escape_string($this->db, $weaponStats["shotsHit"]);
 			$damageDone = mysqli_real_escape_string($this->db, $weaponStats["damageDone"]);
 			$secondsHeld = mysqli_real_escape_string($this->db, $weaponStats["secondsHeld"]);
-			$query = "INSERT INTO match_weaponstats (match_id, player_id, weaponName, pickedUp, kills, shotsFired, shotsHit, damageDone, secondsHeld) VALUES ('".$match_id."', '".$player_id."', '".$weaponName."', '".$pickedUp."', '".$kills."', '".$shotsFired."', '".$shotsHit."', '".$damageDone."', '".$secondsHeld."')";					
+			$query = "INSERT INTO match_weaponstats (duel_id, player_id, weaponName, pickedUp, kills, shotsFired, shotsHit, damageDone, secondsHeld) VALUES ('".$duel_id."', '".$player_id."', '".$weaponName."', '".$pickedUp."', '".$kills."', '".$shotsFired."', '".$shotsHit."', '".$damageDone."', '".$secondsHeld."')";					
 			mysqli_query($this->db, $query);	
 			return mysqli_insert_id($this->db);		
 		}
@@ -89,15 +89,15 @@
 		}
 
 		function getDuelsCount(){
-			$matches = mysqli_query($this->db, "SELECT * FROM matches");
-			return mysqli_num_rows($matches);
+			$duels = mysqli_query($this->db, "SELECT * FROM duels");
+			return mysqli_num_rows($duels);
 		}
 
 		function getMainDuels(){
 			$result = array();
-			$duels = mysqli_query($this->db, "SELECT * FROM matches ORDER by id DESC limit 10");
+			$duels = mysqli_query($this->db, "SELECT * FROM duels ORDER by id DESC limit 10");
 			while($duel = mysqli_fetch_assoc($duels)){	
-				$stats = mysqli_query($this->db, "SELECT match_stats.*, players.*  FROM match_stats LEFT JOIN players ON match_stats.player_id = players.id WHERE match_stats.match_id = '".$duel["id"]."' ORDER by match_stats.score DESC");
+				$stats = mysqli_query($this->db, "SELECT match_stats.*, players.*  FROM match_stats LEFT JOIN players ON match_stats.player_id = players.id WHERE match_stats.duel_id = '".$duel["id"]."' ORDER by match_stats.score DESC");
 				$players_result = array();				
 				while($stat = mysqli_fetch_assoc($stats)){	
 					$players_result[] = $stat;
@@ -121,7 +121,7 @@
 
 		function getPopularMaps(){
 			$result = array();	
-			$maps = mysqli_query($this->db, "SELECT COUNT(*) as cnt, map_title FROM matches GROUP BY map ORDER by cnt desc LIMIT 7");
+			$maps = mysqli_query($this->db, "SELECT COUNT(*) as cnt, map_title FROM duels GROUP BY map ORDER by cnt desc LIMIT 7");
 			while($map = mysqli_fetch_assoc($maps)){
 				$result[] = $map;
 			}
@@ -132,13 +132,13 @@
 		function getMatchById($guid){
 			$result = array();
 			$guid = mysqli_real_escape_string($this->db, $guid);
-			$duels = mysqli_query($this->db, "SELECT * FROM matches WHERE gameGuid = '".$guid."'");
+			$duels = mysqli_query($this->db, "SELECT * FROM duels WHERE gameGuid = '".$guid."'");
 			if($duel = mysqli_fetch_assoc($duels)){
-				$stats = mysqli_query($this->db, "SELECT match_stats.*, players.*   FROM match_stats LEFT JOIN players ON match_stats.player_id = players.id WHERE match_stats.match_id = '".$duel["id"]."' ORDER by match_stats.score DESC");
+				$stats = mysqli_query($this->db, "SELECT match_stats.*, players.*   FROM match_stats LEFT JOIN players ON match_stats.player_id = players.id WHERE match_stats.duel_id = '".$duel["id"]."' ORDER by match_stats.score DESC");
 				$players_result = array();				
 				while($stat = mysqli_fetch_assoc($stats)){	
 					$weapons = array();
-					$playerWeaponStats = mysqli_query($this->db, "SELECT * FROM match_weaponstats WHERE match_id = '".$duel["id"]."' AND player_id = '".$stat["player_id"]."'");
+					$playerWeaponStats = mysqli_query($this->db, "SELECT * FROM match_weaponstats WHERE duel_id = '".$duel["id"]."' AND player_id = '".$stat["player_id"]."'");
 					while($playerWeaponStat = mysqli_fetch_assoc($playerWeaponStats)){
 						$weapons[] = $playerWeaponStat;
 					}
@@ -173,10 +173,10 @@
 
 				$win = 0;
 				$loss = 0;
-				$matches = mysqli_query($this->db, "SELECT match_id FROM match_stats WHERE player_id = '".$player["id"]."'");
+				$duels = mysqli_query($this->db, "SELECT duel_id FROM match_stats WHERE player_id = '".$player["id"]."'");
 				$maps = array();
-				while($match = mysqli_fetch_assoc($matches)){					
-					$wM = mysqli_query($this->db, "SELECT match_stats.player_id, matches.map_title FROM match_stats, matches WHERE matches.id = match_stats.match_id AND  match_stats.match_id = '".$match["match_id"]."' ORDER by match_stats.score DESC LIMIT 1");
+				while($match = mysqli_fetch_assoc($duels)){					
+					$wM = mysqli_query($this->db, "SELECT match_stats.player_id, duels.map_title FROM match_stats, duels WHERE duels.id = match_stats.duel_id AND  match_stats.duel_id = '".$match["duel_id"]."' ORDER by match_stats.score DESC LIMIT 1");
 					if($m = mysqli_fetch_assoc($wM)){								
 						if($m["player_id"] == $player["id"]){
 							if(empty($maps[$m["map_title"]]["win"])){
@@ -199,7 +199,7 @@
 				$player["loss"] = $loss;
 
 				$mapStats = array();
-				$maps = mysqli_query($this->db, "SELECT count(*) as cnt, matches.map_title FROM match_stats, matches WHERE match_stats.match_id = matches.id AND match_stats.player_id = '".$player["id"]."' GROUP by map_title ORDER by cnt DESC");
+				$maps = mysqli_query($this->db, "SELECT count(*) as cnt, duels.map_title FROM match_stats, duels WHERE match_stats.duel_id = duels.id AND match_stats.player_id = '".$player["id"]."' GROUP by map_title ORDER by cnt DESC");
 				while($map = mysqli_fetch_assoc($maps)){
 					$mapStats[] = $map;
 				}
@@ -214,8 +214,8 @@
 		function getPlayerDuels($player_id, $limit = 10){
 			$result = array();
 			$player_id = mysqli_real_escape_string($this->db, $player_id);			
-			$matches = mysqli_query($this->db, "SELECT match_stats.match_id, matches.map_title, matches.map, matches.date, matches.gameGuid FROM match_stats, matches WHERE match_stats.match_id = matches.id AND match_stats.player_id = '".$player_id."' ORDER by match_stats.match_id desc LIMIT ".$limit);
-			while($match = mysqli_fetch_assoc($matches)){	
+			$duels = mysqli_query($this->db, "SELECT match_stats.duel_id, duels.map_title, duels.map, duels.date, duels.gameGuid FROM match_stats, duels WHERE match_stats.duel_id = duels.id AND match_stats.player_id = '".$player_id."' ORDER by match_stats.duel_id desc LIMIT ".$limit);
+			while($match = mysqli_fetch_assoc($duels)){	
 				$matchArr = array();
 				$matchArr["gameGuid"] = $match["gameGuid"];
 				$matchArr["map"] = $match["map"];
@@ -223,7 +223,7 @@
 				$matchArr["date"] = date("d.m.Y", strtotime($match["date"]));
 
 				$matchPlayers = array();
-				$wM = mysqli_query($this->db, "SELECT match_stats.player_id, match_stats.score, match_stats.mmrNew, players.name, players.steamId FROM match_stats, players WHERE match_stats.player_id = players.id AND  match_stats.match_id = '".$match["match_id"]."' ORDER by match_stats.score DESC");
+				$wM = mysqli_query($this->db, "SELECT match_stats.player_id, match_stats.score, match_stats.mmrNew, players.name, players.steamId FROM match_stats, players WHERE match_stats.player_id = players.id AND  match_stats.duel_id = '".$match["duel_id"]."' ORDER by match_stats.score DESC");
 				while($m = mysqli_fetch_assoc($wM)){								
 					$matchArr["players"][] = $m;
 				}
