@@ -140,9 +140,31 @@
 					$weapons = array();
 					$playerWeaponStats = mysqli_query($this->db, "SELECT * FROM match_weaponstats WHERE duel_id = '".$duel["id"]."' AND player_id = '".$stat["player_id"]."'");
 					while($playerWeaponStat = mysqli_fetch_assoc($playerWeaponStats)){
+						$playerWeaponStat["accuracy"] = $playerWeaponStat["shotsFired"] == 0 ? "0%" : round(($playerWeaponStat["shotsHit"]*100)/$playerWeaponStat["shotsFired"],2)."%";
 						$weapons[] = $playerWeaponStat;
 					}
 					$stat["weapons"] = $weapons;
+					if ($stat["mmr"] < 900){
+						$stat["mmr_rank"] = 1;
+					}				
+					else if ($stat["mmr"] >= 900 && $stat["mmr"] < 1400){
+						$stat["mmr_rank"] = 2;
+					}
+					else if ($stat["mmr"] >= 1400 && $stat["mmr"] < 1700){
+						$stat["mmr_rank"] = 3;								
+					}
+					else if ($stat["mmr"] >= 1700 && $stat["mmr"] < 2000){
+						$stat["mmr_rank"] = 4;								
+					}
+					else if ($stat["mmr"] >= 2000 && $stat["mmr"] < 2200){
+						$stat["mmr_rank"] = 5;								
+					}
+					else if ($stat["mmr"] >= 2200 && $stat["mmr"] < 2500){
+						$stat["mmr_rank"] = 6;								
+					}
+					else if ($stat["mmr"] >= 2500){
+						$stat["mmr_rank"] = 7;								
+					}						
 					$players_result[] = $stat;
 				}
 				$duel["players"] = $players_result;
@@ -165,8 +187,34 @@
 				}
 				$allDamage = 0;
 				$weaponStats = mysqli_query($this->db, "SELECT weaponName, SUM(kills) as kills, SUM(shotsFired) as shotsFired, SUM(shotsHit) as shotsHit, SUM(damageDone) as damageDone FROM match_weaponstats WHERE player_id = '".$player["id"]."' GROUP by weaponName");
-				while($weaponStat = mysqli_fetch_assoc($weaponStats)){
+				while($weaponStat = mysqli_fetch_assoc($weaponStats)){					
+					$weaponStat["accuracy"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["shotsHit"]*100)/$weaponStat["shotsFired"],2)." %";
+					if($weaponStat["weaponName"] == "Melee"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*90))*100,2)." %";
+					}
+					if($weaponStat["weaponName"] == "Burst Gun"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*45))*100,2)." %";
+					}
+					if($weaponStat["weaponName"] == "Shotgun"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*5))*100,2)." %";
+					}
+					if($weaponStat["weaponName"] == "Grenade Launcher"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*100))*100,2)." %";
+					}
+					if($weaponStat["weaponName"] == "Plasma Rifle"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*15))*100,2)." %";
+					}	
+					if($weaponStat["weaponName"] == "Rocket Launcher"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*100))*100,2)." %";
+					}
+					if($weaponStat["weaponName"] == "Ion Cannon"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*6))*100,2)." %";
+					}
+					if($weaponStat["weaponName"] == "Bolt Rifle"){
+						$weaponStat["efficiency"] = $weaponStat["shotsFired"] == 0 ? "0%" : round(($weaponStat["damageDone"]/($weaponStat["shotsFired"]*80))*100,2)." %";
+					}																			
 					$player["weapons"][$weaponStat["weaponName"]] = $weaponStat;
+
 					$allDamage += $weaponStat["damageDone"];
 				}
 				$player["allDamage"] = $allDamage;
@@ -205,6 +253,28 @@
 				}
 
 				$player["mapStats"] = $mapStats;
+
+				if ($player["mmr"] < 900){
+					$player["mmr_rank"] = 1;
+				}				
+				else if ($player["mmr"] >= 900 && $player["mmr"] < 1400){
+					$player["mmr_rank"] = 2;
+				}
+				else if ($player["mmr"] >= 1400 && $player["mmr"] < 1700){
+					$player["mmr_rank"] = 3;								
+				}
+				else if ($player["mmr"] >= 1700 && $player["mmr"] < 2000){
+					$player["mmr_rank"] = 4;								
+				}
+				else if ($player["mmr"] >= 2000 && $player["mmr"] < 2200){
+					$player["mmr_rank"] = 5;								
+				}
+				else if ($player["mmr"] >= 2200 && $player["mmr"] < 2500){
+					$player["mmr_rank"] = 6;								
+				}
+				else if ($player["mmr"] >= 2500){
+					$player["mmr_rank"] = 7;								
+				}								
 
 				$result = $player;
 			}
@@ -263,6 +333,27 @@
 				$players = mysqli_query($this->db, "SELECT * FROM players WHERE name LIKE '%".$name."%' ORDER by mmr DESC limit 100 OFFSET ".$pt);
 			}
 			while($player = mysqli_fetch_assoc($players)){
+				if ($player["mmr"] < 900){
+					$player["mmr_rank"] = 1;
+				}				
+				else if ($player["mmr"] >= 900 && $player["mmr"] < 1400){
+					$player["mmr_rank"] = 2;
+				}
+				else if ($player["mmr"] >= 1400 && $player["mmr"] < 1700){
+					$player["mmr_rank"] = 3;								
+				}
+				else if ($player["mmr"] >= 1700 && $player["mmr"] < 2000){
+					$player["mmr_rank"] = 4;								
+				}
+				else if ($player["mmr"] >= 2000 && $player["mmr"] < 2200){
+					$player["mmr_rank"] = 5;								
+				}
+				else if ($player["mmr"] >= 2200 && $player["mmr"] < 2500){
+					$player["mmr_rank"] = 6;								
+				}
+				else if ($player["mmr"] >= 2500){
+					$player["mmr_rank"] = 7;								
+				}				
 				$result[] = $player;
 			}
 			return $result;
