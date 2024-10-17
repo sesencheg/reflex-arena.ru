@@ -1,24 +1,7 @@
     <div id="footer">
-    	<p><a href="https://www.donationalerts.com/r/ql_quake_tv" target="_blank">Donate</a></p>
+    	<p><a href="https://www.donationalerts.com/r/ql_quake_tv" target="_blank">Donate</a> | <a href="https://github.com/sesencheg/reflex-arena.ru" target="_blank">Github</a></p>
     </div>
 </div>
-<script language="javascript" type="text/javascript">
-	jQuery.fn.placeholder = function() {
-		var value = this.val();
-
-		$(this).focus(function() {
-			if (this.value == value)
-				this.value = "";
-		});
-
-		$(this).blur(function() {
-			if (this.value == "")
-				this.value = value;
-		});
-	};
-
-	$('#ctl00_txtPlayerSearch').placeholder();
-</script>
     
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
